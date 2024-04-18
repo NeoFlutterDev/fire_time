@@ -11,6 +11,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
+  var folders = await Hive.openBox("FlashCards");
+  folders.put(0, ['Folder name', '15/04/24', ['UwU', 'a funny phrase']]);
+  folders.put(1, ['Silly goofy', '15/04/24', ['OwO', 'a funnier phrase']]);
+  //folders.delete(1);
+  //folders.delete(0);
   runApp(const MyApp());
 }
 
@@ -30,6 +35,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.red,
         canvasColor: Colors.black,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 28, 28, 28)
       ),
       home: const Scaffold(
         body: BottomAppBar()
@@ -52,7 +58,10 @@ class _FireSideState extends State<FireSide> {
     return const Scaffold(
       body: Center(
         child: Text(
-          "Main Menu"
+          '**WIP**',
+          style: TextStyle(
+            color: Colors.white
+          )
         )
       )
     );

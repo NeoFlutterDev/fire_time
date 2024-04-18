@@ -13,6 +13,12 @@ class _CalendarState extends State<Calendar> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
+        child: Text(
+          '**WIP**',
+          style: TextStyle(
+            color: Colors.white
+          )
+        )
       ),
     );
   }

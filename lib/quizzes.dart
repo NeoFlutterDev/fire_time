@@ -11,15 +11,15 @@ class Quizzes extends StatefulWidget {
 class _QuizzesState extends State<Quizzes> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
-        child: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Quizzes'),
-        ),
-      ),
+        child: Text(
+          '**WIP**',
+          style: TextStyle(
+            color: Colors.white
+          )
+        )
+      )
     );
   }
 }

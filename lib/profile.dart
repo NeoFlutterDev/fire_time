@@ -11,14 +11,14 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
-        child: TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Profile'),
-        ),
+        child: Text(
+          '**WIP**',
+          style: TextStyle(
+            color: Colors.white
+          )
+        )
       ),
     );
   }

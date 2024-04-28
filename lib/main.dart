@@ -12,17 +12,14 @@ void main() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
   var folders = await Hive.openBox("FlashCards");
-  folders.put(0, ['Folder name', '15/04/24', ['UwU', 'a funny phrase']]);
-  folders.put(1, ['Silly goofy', '15/04/24', ['OwO', 'a funnier phrase']]);
-  //folders.delete(1);
-  //folders.delete(0);
+  folders.put(0, ['Folder name', '15/04/24', ['Macbeth quote', 'he murders a child']]);
+  folders.put(1, ['Silly goofy', '15/04/24', ['Banquo', 'Fly or smth']]);
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   State<MyApp> createState() => _MyAppState();
 }

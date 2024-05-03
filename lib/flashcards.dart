@@ -1,37 +1,6 @@
-import 'package:fire_time/database.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-
-folderList() {
-  var folderCollection = [];
-  for (int i = 0; i <= folders.length - 1; i++) {
-    folderCollection.add(folders.get(i));
-    folderCollection[i].add(i); 
-  }
-  return folderCollection;
-}
-
-folderClean(folderCollection) {
-  var updatedFolderCollection = [];
-  for (int i = 0; i <= folderCollection.length - 1; i++) {
-    var tempFolder = [];
-    tempFolder.add(folderCollection[i][0]);
-    tempFolder.add(folderCollection[i][1]);
-    tempFolder.add(folderCollection[i][2]);
-    updatedFolderCollection.add(tempFolder);
-  }
-  return updatedFolderCollection;
-}
-
-folderRemove(folderCollection, exclusion) {
-  var updatedFolderCollection = [];
-  for (int i = 0; i <= folderCollection.length - 1; i++) {
-    if (folderCollection[i][folderCollection.length - 1] != exclusion) {
-      updatedFolderCollection.add(folderCollection[i]);
-    }
-  }
-  return updatedFolderCollection;
-}
+import 'package:hive/hive.dart';  
+import 'package:intl/intl.dart';
 
 class FlashCards extends StatefulWidget {
   const FlashCards({super.key, required this.title});
@@ -44,8 +13,9 @@ class FlashCards extends StatefulWidget {
 class _FlashCardsState extends State<FlashCards> {
   var box = Hive.openBox("FlashCards");
   var folders = Hive.box("FlashCards");
-  var folderCollection = folderList();
-
+  int iteration = 0;
+  final myController = TextEditingController();
+  DateTime now = DateTime.now();
   @override
 
   Widget build(BuildContext context) {
@@ -73,8 +43,12 @@ class _FlashCardsState extends State<FlashCards> {
                         )
                       ),
                       content: 
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          style: const TextStyle(
+                            color: Colors.white
+                          ),
+                          controller: myController,
+                          decoration: const InputDecoration(
                             hintText: 'Enter folder name here',
                             hintStyle: TextStyle(
                               color: Colors.white
@@ -82,6 +56,20 @@ class _FlashCardsState extends State<FlashCards> {
                           )
                         ),
                       actions: [
+                        TextButton(
+                          onPressed:() => [
+                            folders.add([myController.text, (DateFormat('yyyy-MM-dd').format(now.toLocal())), []]),
+                            myController.dispose(),
+                            setState(() {iteration++;}),
+                            Navigator.pop(context)
+                          ],
+                          child: const Text(
+                            'Create',
+                            style: TextStyle(
+                              color: Colors.blue
+                            )
+                          )
+                        ),
                         TextButton(
                           onPressed:() => Navigator.pop(context),
                           child: const Text(
@@ -116,20 +104,14 @@ class _FlashCardsState extends State<FlashCards> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           ListTile(
-                            leading: Text(
-                              folderCollection[index][folderCollection[index].length - 1].toString(),
-                              style: const TextStyle(
-                                color: Colors.white
-                              )
-                            ),
                             title: Text(
-                              folderCollection[index][0],
+                              (folders.getAt(index))[0],
                               style: const TextStyle(
                                 color: Colors.white
                               )
                             ),
                             subtitle: Text(
-                              folderCollection[index][1],
+                              (folders.getAt(index))[1].toString(),
                               style: const TextStyle(
                                 color: Colors.white
                               )
@@ -168,11 +150,8 @@ class _FlashCardsState extends State<FlashCards> {
                                         ),
                                         TextButton(
                                           onPressed: () => {
-                                            folderCollection = folderRemove(folderCollection, index),
-                                            folderCollection = folderClean(folderCollection),
-                                            updateFoldersDatabase(folders, folderCollection),
-                                            setState(() {}),
-                                            folderCollection = folderList(),
+                                            folders.deleteAt(index),
+                                            setState(() {iteration++;}),
                                             Navigator.pop(context)
                                           },
                                           child: const Text(
@@ -198,7 +177,7 @@ class _FlashCardsState extends State<FlashCards> {
                                   context, MaterialPageRoute(
                                     builder: (context) => FlashCardFolder(
                                       title: 'FlashCardFolder',
-                                      flashcards: folderCollection[index][2]
+                                      flashcardsLocation: index
                                       )
                                     )
                                   ),
@@ -227,15 +206,16 @@ class _FlashCardsState extends State<FlashCards> {
 
 class FlashCardFolder extends StatefulWidget {
   final String title;
-  final List<dynamic> flashcards;
-  const FlashCardFolder({super.key, required this.flashcards, required this.title});
+  final int flashcardsLocation;
+  const FlashCardFolder({super.key, required this.flashcardsLocation, required this.title});
 
   @override
   State<FlashCardFolder> createState() => _FlashCardFolderState();
 }
 
 class _FlashCardFolderState extends State<FlashCardFolder> {
-
+  var folders = Hive.box("FlashCards");
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -243,11 +223,11 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
         child: Column(
           children: [
             ListView.builder(
-              itemCount: widget.flashcards.length,
+              itemCount: folders.get(widget.flashcardsLocation).length,
               itemBuilder: (context, index) {
                 return Card(
                   color: Colors.black,
-                  child: Text(widget.flashcards[0].toString())
+                  child: Text(folders.get(widget.flashcardsLocation)[0].toString())
                 );
               },
             )

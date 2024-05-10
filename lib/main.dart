@@ -12,7 +12,8 @@ void main() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
   var folders = await Hive.openBox("FlashCards");
-  folders.clear();
+  //folders.close();
+  //folders.clear();
   runApp(const MyApp());
 }
 

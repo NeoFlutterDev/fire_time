@@ -11,9 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
-  var folders = await Hive.openBox("FlashCards");
-  //folders.close();
-  //folders.clear();
+  var box = await Hive.openBox("FlashCards");
   runApp(const MyApp());
 }
 

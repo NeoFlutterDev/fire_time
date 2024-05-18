@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hive/hive.dart';  
 import 'package:intl/intl.dart';
 
@@ -19,6 +20,38 @@ checkEmptyFlashCard(index) {
   }
 }
 
+class TextFieldForm extends StatefulWidget {
+  const TextFieldForm({super.key});
+
+  @override
+  State<TextFieldForm> createState() => _TextFieldFormState();
+}
+
+class _TextFieldFormState extends State<TextFieldForm> {
+  final myController = TextEditingController();
+  @override 
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      style: const TextStyle(
+        color: Colors.white
+      ),
+      controller: myController,
+      maxLength: 20,
+      decoration: const InputDecoration(
+        hintText: 'Enter folder name here',
+        hintStyle: TextStyle(
+          color: Colors.white
+        )
+      )
+    );
+  }
+}
+
 class FlashCards extends StatefulWidget {
   const FlashCards({super.key, required this.title});
   final String title;
@@ -28,7 +61,6 @@ class FlashCards extends StatefulWidget {
 }
 
 class _FlashCardsState extends State<FlashCards> {
-  var box = Hive.openBox("FlashCards");
   var folders = Hive.box("FlashCards");
   int iteration = 0;
   final myController = TextEditingController();
@@ -53,19 +85,7 @@ class _FlashCardsState extends State<FlashCards> {
                       )
                     ),
                     content: 
-                      TextField(
-                        style: const TextStyle(
-                          color: Colors.white
-                        ),
-                        controller: myController,
-                        maxLength: 20,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter folder name here',
-                          hintStyle: TextStyle(
-                            color: Colors.white
-                          )
-                        )
-                      ),
+                      TextFormField(),
                     actions: [
                       TextButton(
                         onPressed:() => [

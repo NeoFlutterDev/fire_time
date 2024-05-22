@@ -3,31 +3,49 @@ import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 checkEmptyFolder() {
-  var folders = Hive.box('FlashCards');
+  var folders = Hive.box('Folders');
+  var flashcards = Hive.box('FlashCards');
   if (folders.isEmpty) {
     DateTime now = DateTime.now();
-    folders.add(['New Folder', (DateFormat('yyyy-MM-dd').format(now.toLocal())), [['Empty flashcard', 'Empty']]]);
+    folders.add(['New Folder', (DateFormat('yyyy-MM-dd').format(now.toLocal())), 0]);
+    flashcards.add(['Front', 'Back']);
   }
 }
 
 checkEmptyFlashCard(index) {
-  var folders = Hive.box('FlashCards');
-  if (folders.getAt(index).isEmpty) {
-    folders.clear();
-    DateTime now = DateTime.now();
-    folders.add(['New Folder', (DateFormat('yyyy-MM-dd').format(now.toLocal())), [['Empty flashcard', 'Empty']]]);
+  var flashcards = Hive.box('FlashCards');
+  if (flashcards.getAt(index) == []) {
+    flashcards.putAt(index, ['Front', 'Back']);
   }
 }
 
 createSides(index) {
-  var folders = Hive.box('FlashCards');
   List<int> side = [];
-  for (int i = 0; i < ((folders.getAt(index))[2]).length - 2; i++) {
+  var flashcards = Hive.box('FlashCards');
+  for (int i = 0; i < (flashcards.getAt(index)).length; i++) {
     side.add(0);
   }
   return side;
 }
 
+updateFlashCards(index, values) {
+  var flashcards = Hive.box('FlashCards'); 
+  List<String> templist = [];
+  for (int i = 0; i < flashcards.getAt(index); i++) {
+    templist.add(flashcards.getAt(index)[i]);
+  }
+  templist.addAll([values[0], values[1]]);
+  return templist;
+}
+
+createFlashCardsList(index) {
+  var flashcards = Hive.box('FlashCards'); 
+  List<String> templist = [];
+  for (int i = 0; i < flashcards.getAt(index); i++) {
+    templist.add(flashcards.getAt(index)[i]);
+  }
+  return templist;
+}
 class FlashCards extends StatefulWidget {
   const FlashCards({super.key, required this.title});
   final String title;
@@ -37,7 +55,8 @@ class FlashCards extends StatefulWidget {
 }
 
 class _FlashCardsState extends State<FlashCards> {
-  var folders = Hive.box("FlashCards");
+  var folders = Hive.box('Folders');
+  var flashcards = Hive.box('FlashCards');
   int iteration = 0;
   final myController = TextEditingController();
   DateTime now = DateTime.now();
@@ -86,7 +105,8 @@ class _FlashCardsState extends State<FlashCards> {
                       ),
                       TextButton(
                         onPressed:() => [
-                          folders.add([myController.text, (DateFormat('yyyy-MM-dd').format(now.toLocal())), [['Empty flashcard', 'Empty']]]),
+                          folders.add([myController.text, (DateFormat('yyyy-MM-dd').format(now.toLocal()))]),
+                          flashcards.add(['Front', 'Back']),
                           setState(() {iteration++;}),
                           Navigator.pop(context)
                         ],
@@ -169,6 +189,7 @@ class _FlashCardsState extends State<FlashCards> {
                                       TextButton(
                                         onPressed: () => {
                                           folders.deleteAt(index),
+                                          flashcards.deleteAt(index),
                                           checkEmptyFolder(),
                                           setState(() {iteration++;}),
                                           Navigator.pop(context)
@@ -199,7 +220,9 @@ class _FlashCardsState extends State<FlashCards> {
                                 context, MaterialPageRoute(
                                   builder: (context) => FlashCardFolder(
                                     title: 'FlashCardFolder',
-                                    flashcardsLocation: index
+                                    flashcardsLocation: index,
+                                    side: createSides(index),
+                                    flashcardlist: createFlashCardsList(index),
                                     )
                                   )
                                 ),
@@ -227,8 +250,10 @@ class _FlashCardsState extends State<FlashCards> {
 }
 
 class FlashCardFolder extends StatefulWidget {
-  const FlashCardFolder({super.key, required this.flashcardsLocation, required this.title});
+  const FlashCardFolder({super.key, required this.flashcardsLocation, required this.title, required this.side, required this.flashcardlist});
   final String title;
+  final List<int> side;
+  final List<String> flashcardlist;
   final int flashcardsLocation;
 
   @override
@@ -236,13 +261,12 @@ class FlashCardFolder extends StatefulWidget {
 }
 
 class _FlashCardFolderState extends State<FlashCardFolder> {
-  var box = Hive.openBox('FlashCards');
-  var folders = Hive.box('FlashCards');
+  var flashcards = Hive.box('FlashCards');
+  var folders = Hive.box('Folders');
   final flashcardFront = TextEditingController();
   final flashcardBack = TextEditingController();
   DateTime now = DateTime.now();
   int iteration = 0;
-  List<int> side = [1];
   
   @override
 
@@ -319,8 +343,8 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
                             ),
                             TextButton(
                               onPressed:() => [
-                                folders.getAt(widget.flashcardsLocation)[1] = DateFormat('yyyy-MM-dd').format(now.toLocal()),
-                                folders.getAt(widget.flashcardsLocation)[2].add([flashcardFront.text, flashcardBack.text]),
+                                folders.putAt(widget.flashcardsLocation, [folders.getAt(widget.flashcardsLocation)[0], (DateFormat('yyyy-MM-dd').format(now.toLocal()))]),
+                                flashcardlist = updateFlashCards(widget.flashcardsLocation, [flashcardFront.text, flashcardBack.text]),
                                 side = createSides(widget.flashcardsLocation),
                                 Navigator.pop(context),
                                 setState(() {iteration++;}),
@@ -350,24 +374,21 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
               ]
             ),
             Expanded(
-              child:
+              child: 
               ListView.builder(
-                itemCount: (folders.getAt(widget.flashcardsLocation)[2]).length,
-                itemBuilder: (context, index) {
-                  if (side == [1]) {
-                    side = createSides(widget.flashcardsLocation);
-                  }
+                itemCount: flashcards.getAt(widget.flashcardsLocation).length ~/ 2,
+                itemBuilder: (BuildContext context, index) {
                   return Card(
                     clipBehavior: Clip.hardEdge,
                     child: InkWell(
                       splashColor: const Color.fromARGB(255, 0, 0, 0).withAlpha(30),
                       onTap: () {
-                        side[index] = side[index] ^ 1;
+                        widget.side[index] = widget.side[index] ^ 1;
                         setState(() {});
                       },
                       child: SizedBox(
                         height: 200,
-                        child: Center(child: Text(folders.getAt(widget.flashcardsLocation)[2][index][(side[index])].toString())),
+                        child: Center(child: Text(((flashcards.getAt(widget.flashcardsLocation))[widget.side]).toString())),
                       ),
                     ),
                   );

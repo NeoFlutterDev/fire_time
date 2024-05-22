@@ -1,7 +1,9 @@
 import 'package:hive/hive.dart';
 
-var folders = Hive.box("FlashCards");
+var folders = Hive.box("Folders");
+var flashcards = Hive.box("FlashCards");
 var settings = Hive.box("User Settings");
 var statistics = Hive.box("User Statistics");
 
-// structure of FlashCards: {FolderName: [folderName, lastEdited, [[frontOfCard1, backOfCard1], [frontOfCard2, backOfCard2], etc]}
+// structure of Folders: {auto-assigned index: [Name of folder, date, unique ID]}
+// structure of Flashcards: {auto-assigned index: [[front1, back1], [front2, back2], etc]}

@@ -46,6 +46,7 @@ createFlashCardsList(index) {
   }
   return templist;
 }
+
 class FlashCards extends StatefulWidget {
   const FlashCards({super.key, required this.title});
   final String title;
@@ -220,9 +221,7 @@ class _FlashCardsState extends State<FlashCards> {
                                 context, MaterialPageRoute(
                                   builder: (context) => FlashCardFolder(
                                     title: 'FlashCardFolder',
-                                    flashcardsLocation: index,
-                                    side: createSides(index),
-                                    flashcardlist: createFlashCardsList(index),
+                                    flashcardsLocation: index
                                     )
                                   )
                                 ),
@@ -250,10 +249,8 @@ class _FlashCardsState extends State<FlashCards> {
 }
 
 class FlashCardFolder extends StatefulWidget {
-  const FlashCardFolder({super.key, required this.flashcardsLocation, required this.title, required this.side, required this.flashcardlist});
+  const FlashCardFolder({super.key, required this.flashcardsLocation, required this.title});
   final String title;
-  final List<int> side;
-  final List<String> flashcardlist;
   final int flashcardsLocation;
 
   @override
@@ -267,138 +264,149 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
   final flashcardBack = TextEditingController();
   DateTime now = DateTime.now();
   int iteration = 0;
+  List<int> side = [];
+  List<dynamic> flashcardslist = [];
   
   @override
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => (
-                    Navigator.pop(context)
+    try {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => (
+                      Navigator.pop(context)
+                    ),
+                    icon: const Icon(Icons.arrow_back),
+                    color: Colors.blue
                   ),
-                  icon: const Icon(Icons.arrow_back),
-                  color: Colors.blue
-                ),
-                Expanded(
-                  child: 
-                  ElevatedButton(
-                    onPressed:() => (
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: Colors.black,
-                          title: const Text(
-                            'Flashcard creation',
-                            style: TextStyle(
-                              color: Colors.white
-                            )
-                          ),
-                          content: 
-                          Column (
-                            children: [
-                              TextField(
-                                style: const TextStyle(
-                                  color: Colors.white
-                                ),
-                                controller: flashcardFront,
-                                maxLength: 50,
-                                maxLines: null,
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter flashcard front here',
-                                  hintStyle: TextStyle(
-                                    color: Colors.white
-                                  )
-                                )
-                              ),
-                              TextField(
-                                style: const TextStyle(
-                                  color: Colors.white
-                                ),
-                                controller: flashcardBack,
-                                maxLength: 200,
-                                maxLines: null,
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter flashcard back here',
-                                  hintStyle: TextStyle(
-                                    color: Colors.white
-                                  )
-                                )
-                              ),
-                            ],
-                          ), 
-                          actions: [
-                            TextButton(
-                              onPressed:() => Navigator.pop(context),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  color: Colors.blue
-                                )
+                  Expanded(
+                    child: 
+                    ElevatedButton(
+                      onPressed:() => (
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.black,
+                            title: const Text(
+                              'Flashcard creation',
+                              style: TextStyle(
+                                color: Colors.white
                               )
                             ),
-                            TextButton(
-                              onPressed:() => [
-                                folders.putAt(widget.flashcardsLocation, [folders.getAt(widget.flashcardsLocation)[0], (DateFormat('yyyy-MM-dd').format(now.toLocal()))]),
-                                flashcardlist = updateFlashCards(widget.flashcardsLocation, [flashcardFront.text, flashcardBack.text]),
-                                side = createSides(widget.flashcardsLocation),
-                                Navigator.pop(context),
-                                setState(() {iteration++;}),
+                            content: 
+                            Column (
+                              children: [
+                                TextField(
+                                  style: const TextStyle(
+                                    color: Colors.white
+                                  ),
+                                  controller: flashcardFront,
+                                  maxLength: 50,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter flashcard front here',
+                                    hintStyle: TextStyle(
+                                      color: Colors.white
+                                    )
+                                  )
+                                ),
+                                TextField(
+                                  style: const TextStyle(
+                                    color: Colors.white
+                                  ),
+                                  controller: flashcardBack,
+                                  maxLength: 200,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Enter flashcard back here',
+                                    hintStyle: TextStyle(
+                                      color: Colors.white
+                                    )
+                                  )
+                                ),
                               ],
-                              child: const Text(
-                                'Create',
-                                style: TextStyle(
-                                  color: Colors.blue
+                            ), 
+                            actions: [
+                              TextButton(
+                                onPressed:() => Navigator.pop(context),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Colors.blue
+                                  )
+                                )
+                              ),
+                              TextButton(
+                                onPressed:() => [
+                                  folders.putAt(widget.flashcardsLocation, [folders.getAt(widget.flashcardsLocation)[0], (DateFormat('yyyy-MM-dd').format(now.toLocal()))]),
+                                  flashcardslist = updateFlashCards(widget.flashcardsLocation, [flashcardFront.text, flashcardBack.text]),
+                                  side = createSides(widget.flashcardsLocation),
+                                  Navigator.pop(context),
+                                  setState(() {iteration++;}),
+                                ],
+                                child: const Text(
+                                  'Create',
+                                  style: TextStyle(
+                                    color: Colors.blue
+                                  )
                                 )
                               )
-                            )
-                          ],
+                            ],
+                          )
                         )
-                      )
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black
-                    ),
-                    child: const Text(
-                      'Make new flashcard',
-                      style: TextStyle(
-                        color: Colors.blue
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black
+                      ),
+                      child: const Text(
+                        'Make new flashcard',
+                        style: TextStyle(
+                          color: Colors.blue
+                        )
                       )
                     )
                   )
-                )
-              ]
-            ),
-            Expanded(
-              child: 
-              ListView.builder(
-                itemCount: flashcards.getAt(widget.flashcardsLocation).length ~/ 2,
-                itemBuilder: (BuildContext context, index) {
-                  return Card(
-                    clipBehavior: Clip.hardEdge,
-                    child: InkWell(
-                      splashColor: const Color.fromARGB(255, 0, 0, 0).withAlpha(30),
-                      onTap: () {
-                        widget.side[index] = widget.side[index] ^ 1;
-                        setState(() {});
-                      },
-                      child: SizedBox(
-                        height: 200,
-                        child: Center(child: Text(((flashcards.getAt(widget.flashcardsLocation))[widget.side]).toString())),
+                ]
+              ),
+              Expanded(
+                child: 
+                ListView.builder(
+                  itemCount: flashcards.getAt(widget.flashcardsLocation).length ~/ 2,
+                  itemBuilder: (BuildContext context, index) {
+                    return Card(
+                      clipBehavior: Clip.hardEdge,
+                      child: InkWell(
+                        splashColor: const Color.fromARGB(255, 0, 0, 0).withAlpha(30),
+                        onTap: () {
+                          side[index] = side[index] ^ 1;
+                          setState(() {});
+                        },
+                        child: SizedBox(
+                          height: 200,
+                          child: 
+                          Center(
+                            child: Text(((flashcards.getAt(index * 2 + side[index]).toString())))
+                          )
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  }
+                )
               )
-            )
-          ],
+            ],
+          )
         )
-      )
-    );
+      );
+    } on Exception {
+      side = createSides(widget.flashcardsLocation);
+      flashcardslist = createFlashCardsList(widget.flashcardsLocation);
+      setState(() {});
+      rethrow;
+    }
   } 
 }
-

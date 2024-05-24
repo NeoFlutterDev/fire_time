@@ -20,21 +20,9 @@ checkEmptyFlashCard(index) {
 }
 
 createSides(index) {
-  List<int> side = [];
   var flashcards = Hive.box('FlashCards');
-  for (int i = 0; i < (flashcards.getAt(index)).length; i++) {
-    side.add(0);
-  }
+  List<int> side = List<int>.filled((flashcards.getAt(index)).length, 0);
   return side;
-}
-
-createFlashCardsList(index) {
-  var flashcards = Hive.box('FlashCards'); 
-  List<String> templist = [];
-  for (int i = 0; i < flashcards.getAt(index); i++) {
-    templist.add(flashcards.getAt(index)[i]);
-  }
-  return templist;
 }
 
 class FlashCards extends StatefulWidget {
@@ -338,7 +326,7 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
                             TextButton(
                               onPressed:() => [
                                 folders.putAt(widget.flashcardsLocation, [folders.getAt(widget.flashcardsLocation)[0], (DateFormat('yyyy-MM-dd').format(now.toLocal()))]),
-                                flashcards.addAll([flashcardFront.text, flashcardBack.text]),
+                                flashcards.add([flashcardFront.text, flashcardBack.text]),
                                 side = createSides(widget.flashcardsLocation),
                                 Navigator.pop(context),
                                 setState(() {iteration++;}),
@@ -370,17 +358,18 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
             Expanded(
               child: 
               ListView.builder(
-                itemCount: flashcards.getAt(widget.flashcardsLocation).length ~/ 2,
+                itemCount: flashcards.getAt(widget.flashcardsLocation).length,
                 itemBuilder: (BuildContext context, index) {
                   if (side == []) {
                     side = createSides(widget.flashcardsLocation);
+                    setState(() {iteration++;});
                     return Card(
                       clipBehavior: Clip.hardEdge,
                       child: InkWell(
                         splashColor: const Color.fromARGB(255, 0, 0, 0).withAlpha(30),
                         onTap: () {
                           side[index] = side[index] ^ 1;
-                          setState(() {});
+                          setState(() {iteration++;});
                         },
                         child: SizedBox(
                           height: 200,
@@ -397,14 +386,14 @@ class _FlashCardFolderState extends State<FlashCardFolder> {
                       child: InkWell(
                         splashColor: const Color.fromARGB(255, 0, 0, 0).withAlpha(30),
                         onTap: () {
-                          side[index] = side[index] ^ 1;
-                          setState(() {});
+                          side[index] = 0;
+                          setState(() {iteration++;});
                         },
                         child: SizedBox(
                           height: 200,
                           child: 
                           Center(
-                            child: Text(((flashcards.getAt(index * 2 + side[index]).toString())))
+                            child: Text(((flashcards.getAt(index))[side[index]]).toString())
                           )
                         ),
                       ),
